@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,
+								initial-scale=1.0">
+    <title>Sudoku Puzzle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F5FCFF;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            text-align: center;
+            line-height: 30px;
+            box-sizing: border-box;
+        }
+
+        .lightBackground {
+            background-color: #A9A9A9;
+        }
+
+        .darkBackground {
+            background-color: #EBF3E8;
+        }
+
+        .buttonContainer {
+            margin-top: 20px;
+            display: flex;
+            /* Ensure buttons are always displayed */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .buttonContainer button {
+            margin-right: 10px;
+            /* Add margin between buttons */
+        }
+
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+<form class="container" id="container" action="solve_sudoku.php" method="POST"></form>
+
+<div class="buttonContainer">
+    <button id="solveButton" type="submit">Solve</button>
+    <button id="resetButton">Reset</button>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.getElementById("container");
+
+        // Function to generate a random Sudoku puzzle
+        function initialPuzzleMatrix() {
+            // Placeholder function for generating a random puzzle (9x9)
+            const puzzle = [
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ];
+            return puzzle;
+        }
+
+        // Function to create the Sudoku puzzle grid
+        function createSudokuGrid(puzzle) {
+            container.innerHTML = '';
+            let row_counter = 0
+            puzzle.forEach((row, rowIndex) => {
+                const rowElement = document.createElement('div');
+                rowElement.classList.add('row');
+                row.forEach((cell, columnIndex) => {
+                    const cellElement = document.createElement('input');
+                    cellElement.classList.add('cell');
+                    cellElement.classList
+                        .add((rowIndex + columnIndex) % 2 === 0 ?
+                            'lightBackground' : 'darkBackground');
+                    cellElement.type = 'text';
+                    cellElement.maxLength = 1;
+                    cellElement.value = cell !== 0 ? cell : '';
+                    cellElement.name = row_counter + '' + columnIndex;
+                    rowElement.appendChild(cellElement);
+                });
+                container.appendChild(rowElement);
+                row_counter += 1;
+            });
+        }
+
+        // Initialize puzzle
+        let initialPuzzle = initialPuzzleMatrix();
+        let puzzle = JSON.parse(JSON.stringify(initialPuzzle));
+
+        // Function to solve the puzzle
+        function solvePuzzle() {
+            const url = "solve_sudoku.php";
+            fetch(url, {
+                method: "POST",
+                body: new FormData(document.getElementById("container")),
+            }).then(
+                response => response.text()
+            ).then(
+                sudoku => createSudokuGrid(JSON.parse(sudoku))
+            );
+        }
+
+        // Function to reset the puzzle
+        function resetPuzzle() {
+            initialPuzzle = initialPuzzleMatrix();
+            puzzle = JSON.parse(JSON.stringify(initialPuzzle));
+            createSudokuGrid(puzzle);
+        }
+
+        // Initial puzzle creation
+        createSudokuGrid(puzzle);
+
+        // Attach event listeners to buttons
+        document.getElementById("solveButton")
+            .addEventListener("click", solvePuzzle);
+        document.getElementById("resetButton")
+            .addEventListener("click", resetPuzzle);
+    });
+</script>
+</body>
+</html>
